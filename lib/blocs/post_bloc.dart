@@ -32,7 +32,9 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     try {
       final posts = await _repository.fetchPosts(page: _currentPage);
       _currentPage++;
-      emit(PostLoaded(posts: posts, hasMore: posts.isNotEmpty));
+      // If the first page is already smaller than pageSize there are no more pages.
+      final hasMore = posts.length >= PostRepository.pageSize;
+      emit(PostLoaded(posts: posts, hasMore: hasMore));
     } on PostRepositoryException catch (e) {
       emit(PostError(message: e.message));
     }
@@ -51,17 +53,17 @@ class PostBloc extends Bloc<PostEvent, PostState> {
     try {
       final newPosts = await _repository.fetchPosts(page: _currentPage);
 
-      if (newPosts.isEmpty) {
-        emit(current.copyWith(hasMore: false, isFetchingMore: false));
-      } else {
-        _currentPage++;
-        emit(
-          current.copyWith(
-            posts: [...current.posts, ...newPosts],
-            isFetchingMore: false,
-          ),
-        );
-      }
+      // A partial page (or empty page) signals the end of the data set.
+      final hasMore = newPosts.length >= PostRepository.pageSize;
+
+      _currentPage++;
+      emit(
+        current.copyWith(
+          posts: [...current.posts, ...newPosts],
+          hasMore: hasMore,
+          isFetchingMore: false,
+        ),
+      );
     } on PostRepositoryException catch (e) {
       emit(current.copyWith(isFetchingMore: false, paginationError: e.message));
     }

@@ -19,6 +19,18 @@ class MockPostRepository extends Mock implements PostRepository {}
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+/// A full page (== PostRepository.pageSize) → hasMore: true after load.
+List<Post> _fullPage() => List.generate(
+  PostRepository.pageSize,
+  (i) => Post(
+    id: i + 1,
+    userId: 1,
+    title: 'Post Title ${i + 1}',
+    body: 'Post body ${i + 1}',
+  ),
+);
+
+/// A partial page (< PostRepository.pageSize) → hasMore: false after load.
 List<Post> _posts(int count) => List.generate(
   count,
   (i) => Post(
@@ -73,7 +85,7 @@ void main() {
     testWidgets('shows list of PostCards when posts load', (tester) async {
       when(
         () => mockRepo.fetchPosts(page: any(named: 'page')),
-      ).thenAnswer((_) async => _posts(5));
+      ).thenAnswer((_) async => _fullPage());
 
       await tester.pumpWidget(_buildScreen(mockRepo));
       await tester.pumpAndSettle();
@@ -130,14 +142,7 @@ void main() {
       // First call → error state
       expect(find.byType(ErrorStateWidget), findsOneWidget);
 
-      // Scroll the error widget into view and tap the refresh icon inside it
-      // (the button is inside ErrorStateWidget which is in SliverFillRemaining)
-      final errorWidget = tester.widget<ErrorStateWidget>(
-        find.byType(ErrorStateWidget),
-      );
-      expect(errorWidget, isNotNull);
-
-      // Tap the retry icon button — the FilledButton has an icon child
+      // Tap the retry icon inside ErrorStateWidget
       await tester.tap(
         find.descendant(
           of: find.byType(ErrorStateWidget),

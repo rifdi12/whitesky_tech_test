@@ -42,6 +42,40 @@ void main() {
   });
 
   group('PostRepository.fetchPosts', () {
+    // ── Pagination query params ──────────────────────────────────────────
+
+    test('sends correct _start and _limit query params for page 1', () async {
+      when(
+        () => mockClient.get(any()),
+      ).thenAnswer((_) async => http.Response(_postJson(), 200));
+
+      await repository.fetchPosts(page: 1);
+
+      final captured = verify(
+        () => mockClient.get(captureAny()),
+      ).captured.single as Uri;
+
+      expect(captured.queryParameters['_start'], '0');
+      expect(captured.queryParameters['_limit'], '${PostRepository.pageSize}');
+    });
+
+    test('sends correct _start for page 2', () async {
+      when(
+        () => mockClient.get(any()),
+      ).thenAnswer((_) async => http.Response(_postJson(), 200));
+
+      await repository.fetchPosts(page: 2);
+
+      final captured = verify(
+        () => mockClient.get(captureAny()),
+      ).captured.single as Uri;
+
+      expect(
+        captured.queryParameters['_start'],
+        '${PostRepository.pageSize}',
+      );
+    });
+
     // ── Success ─────────────────────────────────────────────────────────
 
     test('returns a list of Posts on HTTP 200', () async {
