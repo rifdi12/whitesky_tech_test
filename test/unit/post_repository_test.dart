@@ -51,9 +51,8 @@ void main() {
 
       await repository.fetchPosts(page: 1);
 
-      final captured = verify(
-        () => mockClient.get(captureAny()),
-      ).captured.single as Uri;
+      final captured =
+          verify(() => mockClient.get(captureAny())).captured.single as Uri;
 
       expect(captured.queryParameters['_start'], '0');
       expect(captured.queryParameters['_limit'], '${PostRepository.pageSize}');
@@ -66,14 +65,10 @@ void main() {
 
       await repository.fetchPosts(page: 2);
 
-      final captured = verify(
-        () => mockClient.get(captureAny()),
-      ).captured.single as Uri;
+      final captured =
+          verify(() => mockClient.get(captureAny())).captured.single as Uri;
 
-      expect(
-        captured.queryParameters['_start'],
-        '${PostRepository.pageSize}',
-      );
+      expect(captured.queryParameters['_start'], '${PostRepository.pageSize}');
     });
 
     // ── Success ─────────────────────────────────────────────────────────

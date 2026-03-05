@@ -148,7 +148,9 @@ void main() {
           _,
         ) async {
           callCount++;
-          return _fullPage(startId: (callCount - 1) * PostRepository.pageSize + 1);
+          return _fullPage(
+            startId: (callCount - 1) * PostRepository.pageSize + 1,
+          );
         });
         return PostBloc(repository: mockRepo);
       },
@@ -192,10 +194,7 @@ void main() {
         const PostLoading(),
         PostLoaded(posts: _fullPage(), hasMore: true),
         PostLoaded(posts: _fullPage(), hasMore: true, isFetchingMore: true),
-        PostLoaded(
-          posts: [..._fullPage(), ..._partialPage()],
-          hasMore: false,
-        ),
+        PostLoaded(posts: [..._fullPage(), ..._partialPage()], hasMore: false),
       ],
     );
 

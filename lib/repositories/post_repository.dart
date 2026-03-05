@@ -22,12 +22,9 @@ class PostRepository {
   /// Throws a [PostRepositoryException] on network or parsing failure.
   Future<List<Post>> fetchPosts({required int page}) async {
     final start = (page - 1) * pageSize;
-    final uri = Uri.parse('$_baseUrl/posts').replace(
-      queryParameters: {
-        '_start': '$start',
-        '_limit': '$pageSize',
-      },
-    );
+    final uri = Uri.parse(
+      '$_baseUrl/posts',
+    ).replace(queryParameters: {'_start': '$start', '_limit': '$pageSize'});
 
     try {
       final response = await _client.get(uri);
