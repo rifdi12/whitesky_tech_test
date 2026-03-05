@@ -10,16 +10,16 @@ A Flutter application that fetches posts from the [JSONPlaceholder](https://json
 
 | Tool | Version |
 |---|---|
-| Flutter SDK | ≥ 3.x (latest stable) |
-| Dart SDK | ≥ 3.x |
+| Flutter SDK | ≥ 3.35.7 |
+| Dart SDK | ≥ 3.9.2 |
 | Android Studio / Xcode | for device/simulator |
 
 ### Steps
 
 ```bash
 # 1. Clone the repository
-git clone <your-repo-url>
-cd whitesky_aviation_tech_test
+git clone https://github.com/rifdi12/whitesky_tech_test
+cd whitesky_tech_test
 
 # 2. Install dependencies
 flutter pub get
@@ -85,16 +85,6 @@ lib/
 | **Error (initial load)** | Centred icon + message + **Retry** button |
 | **Error (pagination)** | Silently stops; user can pull-to-refresh |
 | **Empty** | Centred inbox icon + "No posts found." message |
-
----
-
-## Assumptions Made
-
-1. **Page size is 10** – JSONPlaceholder supports `_limit` / `_page` query params; the API has exactly 100 posts so the list naturally ends after 10 pages.
-2. **No caching** – Data is re-fetched on every cold start or explicit refresh (pull-to-refresh / AppBar refresh button). Adding a local cache (e.g. Hive or sqflite) is straightforward but out of scope.
-3. **No authentication** – JSONPlaceholder is a public read-only API.
-4. **Material 3 design** – The app uses Material 3 with a dynamic `ColorScheme` and respects the system dark/light theme.
-5. **Navigation is push-based** – Simple `Navigator.push` is sufficient; a named-route or GoRouter setup would be appropriate for a larger app with deep-linking needs.
 
 ---
 
