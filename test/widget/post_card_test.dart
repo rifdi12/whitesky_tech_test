@@ -17,7 +17,12 @@ Widget _buildCard({
 }
 
 void main() {
-  const testPost = Post(id: 1, userId: 2, title: 'Hello World', body: 'Body text here');
+  const testPost = Post(
+    id: 1,
+    userId: 2,
+    title: 'Hello World',
+    body: 'Body text here',
+  );
 
   group('PostCard widget', () {
     testWidgets('renders the post title', (tester) async {
@@ -43,13 +48,16 @@ void main() {
 
     testWidgets('calls onTap when tapped', (tester) async {
       var tapped = false;
-      await tester.pumpWidget(_buildCard(post: testPost, onTap: () => tapped = true));
+      await tester.pumpWidget(
+        _buildCard(post: testPost, onTap: () => tapped = true),
+      );
       await tester.tap(find.byType(PostCard));
       expect(tapped, isTrue);
     });
 
-    testWidgets('uses different accent colours for different indices',
-        (tester) async {
+    testWidgets('uses different accent colours for different indices', (
+      tester,
+    ) async {
       // Just verifies two cards can render at different indices without error.
       await tester.pumpWidget(
         MaterialApp(

@@ -13,20 +13,20 @@ class MockHttpClient extends Mock implements http.Client {}
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 String _postJson({int id = 1, int userId = 1}) => jsonEncode([
-      {'id': id, 'userId': userId, 'title': 'Title $id', 'body': 'Body $id'},
-    ]);
+  {'id': id, 'userId': userId, 'title': 'Title $id', 'body': 'Body $id'},
+]);
 
 String _multiplePostsJson(int count) => jsonEncode(
-      List.generate(
-        count,
-        (i) => {
-          'id': i + 1,
-          'userId': 1,
-          'title': 'Title ${i + 1}',
-          'body': 'Body ${i + 1}',
-        },
-      ),
-    );
+  List.generate(
+    count,
+    (i) => {
+      'id': i + 1,
+      'userId': 1,
+      'title': 'Title ${i + 1}',
+      'body': 'Body ${i + 1}',
+    },
+  ),
+);
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
@@ -45,9 +45,9 @@ void main() {
     // ── Success ─────────────────────────────────────────────────────────
 
     test('returns a list of Posts on HTTP 200', () async {
-      when(() => mockClient.get(any())).thenAnswer(
-        (_) async => http.Response(_postJson(), 200),
-      );
+      when(
+        () => mockClient.get(any()),
+      ).thenAnswer((_) async => http.Response(_postJson(), 200));
 
       final posts = await repository.fetchPosts(page: 1);
 
@@ -57,9 +57,9 @@ void main() {
     });
 
     test('returns multiple posts parsed correctly', () async {
-      when(() => mockClient.get(any())).thenAnswer(
-        (_) async => http.Response(_multiplePostsJson(5), 200),
-      );
+      when(
+        () => mockClient.get(any()),
+      ).thenAnswer((_) async => http.Response(_multiplePostsJson(5), 200));
 
       final posts = await repository.fetchPosts(page: 1);
 
@@ -70,9 +70,9 @@ void main() {
     });
 
     test('returns empty list when server returns empty array', () async {
-      when(() => mockClient.get(any())).thenAnswer(
-        (_) async => http.Response('[]', 200),
-      );
+      when(
+        () => mockClient.get(any()),
+      ).thenAnswer((_) async => http.Response('[]', 200));
 
       final posts = await repository.fetchPosts(page: 1);
 
@@ -82,9 +82,9 @@ void main() {
     // ── HTTP error ───────────────────────────────────────────────────────
 
     test('throws PostRepositoryException on HTTP 404', () async {
-      when(() => mockClient.get(any())).thenAnswer(
-        (_) async => http.Response('Not Found', 404),
-      );
+      when(
+        () => mockClient.get(any()),
+      ).thenAnswer((_) async => http.Response('Not Found', 404));
 
       expect(
         () => repository.fetchPosts(page: 1),
@@ -99,9 +99,9 @@ void main() {
     });
 
     test('throws PostRepositoryException on HTTP 500', () async {
-      when(() => mockClient.get(any())).thenAnswer(
-        (_) async => http.Response('Internal Server Error', 500),
-      );
+      when(
+        () => mockClient.get(any()),
+      ).thenAnswer((_) async => http.Response('Internal Server Error', 500));
 
       expect(
         () => repository.fetchPosts(page: 1),
@@ -111,41 +111,45 @@ void main() {
 
     // ── Network errors ───────────────────────────────────────────────────
 
-    test('throws PostRepositoryException on SocketException (no internet)',
-        () async {
-      when(() => mockClient.get(any())).thenThrow(
-        const SocketException('No internet'),
-      );
+    test(
+      'throws PostRepositoryException on SocketException (no internet)',
+      () async {
+        when(
+          () => mockClient.get(any()),
+        ).thenThrow(const SocketException('No internet'));
 
-      expect(
-        () => repository.fetchPosts(page: 1),
-        throwsA(
-          isA<PostRepositoryException>().having(
-            (e) => e.message,
-            'message',
-            contains('No internet connection'),
+        expect(
+          () => repository.fetchPosts(page: 1),
+          throwsA(
+            isA<PostRepositoryException>().having(
+              (e) => e.message,
+              'message',
+              contains('No internet connection'),
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
 
-    test('throws PostRepositoryException on FormatException (bad JSON)',
-        () async {
-      when(() => mockClient.get(any())).thenAnswer(
-        (_) async => http.Response('not-valid-json', 200),
-      );
+    test(
+      'throws PostRepositoryException on FormatException (bad JSON)',
+      () async {
+        when(
+          () => mockClient.get(any()),
+        ).thenAnswer((_) async => http.Response('not-valid-json', 200));
 
-      expect(
-        () => repository.fetchPosts(page: 1),
-        throwsA(
-          isA<PostRepositoryException>().having(
-            (e) => e.message,
-            'message',
-            contains('parse'),
+        expect(
+          () => repository.fetchPosts(page: 1),
+          throwsA(
+            isA<PostRepositoryException>().having(
+              (e) => e.message,
+              'message',
+              contains('parse'),
+            ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
 
     test('throws PostRepositoryException on unexpected error', () async {
       when(() => mockClient.get(any())).thenThrow(Exception('Unknown'));

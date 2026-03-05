@@ -12,14 +12,14 @@ class MockPostRepository extends Mock implements PostRepository {}
 // ── Fixtures ──────────────────────────────────────────────────────────────────
 
 List<Post> _posts(int count, {int startId = 1}) => List.generate(
-      count,
-      (i) => Post(
-        id: startId + i,
-        userId: 1,
-        title: 'Title ${startId + i}',
-        body: 'Body ${startId + i}',
-      ),
-    );
+  count,
+  (i) => Post(
+    id: startId + i,
+    userId: 1,
+    title: 'Title ${startId + i}',
+    body: 'Body ${startId + i}',
+  ),
+);
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
@@ -36,8 +36,9 @@ void main() {
     blocTest<PostBloc, PostState>(
       'emits [PostLoading, PostLoaded] on successful fetch',
       build: () {
-        when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-            .thenAnswer((_) async => _posts(10));
+        when(
+          () => mockRepo.fetchPosts(page: any(named: 'page')),
+        ).thenAnswer((_) async => _posts(10));
         return PostBloc(repository: mockRepo);
       },
       act: (bloc) => bloc.add(const LoadPosts()),
@@ -50,8 +51,9 @@ void main() {
     blocTest<PostBloc, PostState>(
       'emits [PostLoading, PostLoaded(hasMore: false)] when API returns empty',
       build: () {
-        when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-            .thenAnswer((_) async => []);
+        when(
+          () => mockRepo.fetchPosts(page: any(named: 'page')),
+        ).thenAnswer((_) async => []);
         return PostBloc(repository: mockRepo);
       },
       act: (bloc) => bloc.add(const LoadPosts()),
@@ -64,8 +66,9 @@ void main() {
     blocTest<PostBloc, PostState>(
       'emits [PostLoading, PostError] when repository throws',
       build: () {
-        when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-            .thenThrow(const PostRepositoryException('Network error'));
+        when(
+          () => mockRepo.fetchPosts(page: any(named: 'page')),
+        ).thenThrow(const PostRepositoryException('Network error'));
         return PostBloc(repository: mockRepo);
       },
       act: (bloc) => bloc.add(const LoadPosts()),
@@ -78,8 +81,9 @@ void main() {
     blocTest<PostBloc, PostState>(
       'resets to page 1 when LoadPosts is dispatched a second time',
       build: () {
-        when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-            .thenAnswer((_) async => _posts(10));
+        when(
+          () => mockRepo.fetchPosts(page: any(named: 'page')),
+        ).thenAnswer((_) async => _posts(10));
         return PostBloc(repository: mockRepo);
       },
       act: (bloc) async {
@@ -104,12 +108,12 @@ void main() {
       'appends next page to existing posts',
       build: () {
         var callCount = 0;
-        when(() => mockRepo.fetchPosts(page: any(named: 'page'))).thenAnswer(
-          (_) async {
-            callCount++;
-            return _posts(10, startId: (callCount - 1) * 10 + 1);
-          },
-        );
+        when(() => mockRepo.fetchPosts(page: any(named: 'page'))).thenAnswer((
+          _,
+        ) async {
+          callCount++;
+          return _posts(10, startId: (callCount - 1) * 10 + 1);
+        });
         return PostBloc(repository: mockRepo);
       },
       act: (bloc) async {
@@ -120,11 +124,11 @@ void main() {
       expect: () => [
         const PostLoading(),
         PostLoaded(posts: _posts(10), hasMore: true),
+        PostLoaded(posts: _posts(10), hasMore: true, isFetchingMore: true),
         PostLoaded(
-            posts: _posts(10), hasMore: true, isFetchingMore: true),
-        PostLoaded(
-            posts: [..._posts(10), ..._posts(10, startId: 11)],
-            hasMore: true),
+          posts: [..._posts(10), ..._posts(10, startId: 11)],
+          hasMore: true,
+        ),
       ],
     );
 
@@ -132,12 +136,12 @@ void main() {
       'sets hasMore=false when next page is empty',
       build: () {
         var callCount = 0;
-        when(() => mockRepo.fetchPosts(page: any(named: 'page'))).thenAnswer(
-          (_) async {
-            callCount++;
-            return callCount == 1 ? _posts(10) : [];
-          },
-        );
+        when(() => mockRepo.fetchPosts(page: any(named: 'page'))).thenAnswer((
+          _,
+        ) async {
+          callCount++;
+          return callCount == 1 ? _posts(10) : [];
+        });
         return PostBloc(repository: mockRepo);
       },
       act: (bloc) async {
@@ -148,8 +152,7 @@ void main() {
       expect: () => [
         const PostLoading(),
         PostLoaded(posts: _posts(10), hasMore: true),
-        PostLoaded(
-            posts: _posts(10), hasMore: true, isFetchingMore: true),
+        PostLoaded(posts: _posts(10), hasMore: true, isFetchingMore: true),
         PostLoaded(posts: _posts(10), hasMore: false),
       ],
     );
@@ -158,13 +161,13 @@ void main() {
       'emits paginationError when next page fetch fails',
       build: () {
         var callCount = 0;
-        when(() => mockRepo.fetchPosts(page: any(named: 'page'))).thenAnswer(
-          (_) async {
-            callCount++;
-            if (callCount == 1) return _posts(10);
-            throw const PostRepositoryException('Pagination failed');
-          },
-        );
+        when(() => mockRepo.fetchPosts(page: any(named: 'page'))).thenAnswer((
+          _,
+        ) async {
+          callCount++;
+          if (callCount == 1) return _posts(10);
+          throw const PostRepositoryException('Pagination failed');
+        });
         return PostBloc(repository: mockRepo);
       },
       act: (bloc) async {
@@ -175,12 +178,12 @@ void main() {
       expect: () => [
         const PostLoading(),
         PostLoaded(posts: _posts(10), hasMore: true),
+        PostLoaded(posts: _posts(10), hasMore: true, isFetchingMore: true),
         PostLoaded(
-            posts: _posts(10), hasMore: true, isFetchingMore: true),
-        PostLoaded(
-            posts: _posts(10),
-            hasMore: true,
-            paginationError: 'Pagination failed'),
+          posts: _posts(10),
+          hasMore: true,
+          paginationError: 'Pagination failed',
+        ),
       ],
     );
 
@@ -194,8 +197,9 @@ void main() {
     blocTest<PostBloc, PostState>(
       'is a no-op when hasMore is false',
       build: () {
-        when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-            .thenAnswer((_) async => []);
+        when(
+          () => mockRepo.fetchPosts(page: any(named: 'page')),
+        ).thenAnswer((_) async => []);
         return PostBloc(repository: mockRepo);
       },
       act: (bloc) async {
@@ -213,8 +217,9 @@ void main() {
     blocTest<PostBloc, PostState>(
       'consecutive LoadMorePosts calls each trigger a fetch (guard is state-based)',
       build: () {
-        when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-            .thenAnswer((_) async => _posts(10));
+        when(
+          () => mockRepo.fetchPosts(page: any(named: 'page')),
+        ).thenAnswer((_) async => _posts(10));
         return PostBloc(repository: mockRepo);
       },
       act: (bloc) async {
@@ -228,8 +233,9 @@ void main() {
       // (they're concurrent), so the guard passes for both.
       // This verifies the BLoC doesn't crash on concurrent events.
       verify: (_) {
-        verify(() => mockRepo.fetchPosts(page: any(named: 'page')))
-            .called(greaterThanOrEqualTo(2));
+        verify(
+          () => mockRepo.fetchPosts(page: any(named: 'page')),
+        ).called(greaterThanOrEqualTo(2));
       },
     );
   });

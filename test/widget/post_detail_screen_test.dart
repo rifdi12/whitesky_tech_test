@@ -27,8 +27,10 @@ void main() {
       await tester.pumpWidget(_buildScreen(post));
       await tester.pumpAndSettle();
 
-      expect(find.text('Full body content shown in the detail view.'),
-          findsOneWidget);
+      expect(
+        find.text('Full body content shown in the detail view.'),
+        findsOneWidget,
+      );
     });
 
     testWidgets('renders user id label', (tester) async {
@@ -64,9 +66,7 @@ void main() {
               child: const Text('Go'),
             ),
           ),
-          navigatorObservers: [
-            _Popped(onPop: () => popped = true),
-          ],
+          navigatorObservers: [_Popped(onPop: () => popped = true)],
         ),
       );
 

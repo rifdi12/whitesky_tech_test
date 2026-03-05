@@ -20,14 +20,14 @@ class MockPostRepository extends Mock implements PostRepository {}
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 List<Post> _posts(int count) => List.generate(
-      count,
-      (i) => Post(
-        id: i + 1,
-        userId: 1,
-        title: 'Post Title ${i + 1}',
-        body: 'Post body ${i + 1}',
-      ),
-    );
+  count,
+  (i) => Post(
+    id: i + 1,
+    userId: 1,
+    title: 'Post Title ${i + 1}',
+    body: 'Post body ${i + 1}',
+  ),
+);
 
 /// Wraps [PostListScreen] inside a [BlocProvider] backed by a real [PostBloc]
 /// that uses [mockRepo].
@@ -50,13 +50,15 @@ void main() {
   });
 
   group('PostListScreen', () {
-    testWidgets('shows loading widget while fetching first page',
-        (tester) async {
+    testWidgets('shows loading widget while fetching first page', (
+      tester,
+    ) async {
       // Use a Completer so the future never resolves during this test,
       // and we can complete it before teardown to avoid pending-timer warnings.
       final completer = Completer<List<Post>>();
-      when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-          .thenAnswer((_) => completer.future);
+      when(
+        () => mockRepo.fetchPosts(page: any(named: 'page')),
+      ).thenAnswer((_) => completer.future);
 
       await tester.pumpWidget(_buildScreen(mockRepo));
       await tester.pump(); // let BLoC emit PostLoading
@@ -69,8 +71,9 @@ void main() {
     });
 
     testWidgets('shows list of PostCards when posts load', (tester) async {
-      when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-          .thenAnswer((_) async => _posts(5));
+      when(
+        () => mockRepo.fetchPosts(page: any(named: 'page')),
+      ).thenAnswer((_) async => _posts(5));
 
       await tester.pumpWidget(_buildScreen(mockRepo));
       await tester.pumpAndSettle();
@@ -80,10 +83,12 @@ void main() {
       expect(find.text('Post Title 1'), findsOneWidget);
     });
 
-    testWidgets('shows empty state widget when API returns no posts',
-        (tester) async {
-      when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-          .thenAnswer((_) async => []);
+    testWidgets('shows empty state widget when API returns no posts', (
+      tester,
+    ) async {
+      when(
+        () => mockRepo.fetchPosts(page: any(named: 'page')),
+      ).thenAnswer((_) async => []);
 
       await tester.pumpWidget(_buildScreen(mockRepo));
       await tester.pumpAndSettle();
@@ -91,10 +96,12 @@ void main() {
       expect(find.byType(EmptyStateWidget), findsOneWidget);
     });
 
-    testWidgets('shows error state widget when repository throws',
-        (tester) async {
-      when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-          .thenThrow(const PostRepositoryException('Something went wrong'));
+    testWidgets('shows error state widget when repository throws', (
+      tester,
+    ) async {
+      when(
+        () => mockRepo.fetchPosts(page: any(named: 'page')),
+      ).thenThrow(const PostRepositoryException('Something went wrong'));
 
       await tester.pumpWidget(_buildScreen(mockRepo));
       await tester.pumpAndSettle();
@@ -103,18 +110,19 @@ void main() {
       expect(find.text('Something went wrong'), findsOneWidget);
     });
 
-    testWidgets('retry button in ErrorStateWidget re-dispatches LoadPosts',
-        (tester) async {
+    testWidgets('retry button in ErrorStateWidget re-dispatches LoadPosts', (
+      tester,
+    ) async {
       var callCount = 0;
-      when(() => mockRepo.fetchPosts(page: any(named: 'page'))).thenAnswer(
-        (_) async {
-          callCount++;
-          if (callCount == 1) {
-            throw const PostRepositoryException('Network error');
-          }
-          return _posts(3);
-        },
-      );
+      when(() => mockRepo.fetchPosts(page: any(named: 'page'))).thenAnswer((
+        _,
+      ) async {
+        callCount++;
+        if (callCount == 1) {
+          throw const PostRepositoryException('Network error');
+        }
+        return _posts(3);
+      });
 
       await tester.pumpWidget(_buildScreen(mockRepo));
       await tester.pumpAndSettle();
@@ -142,10 +150,12 @@ void main() {
       expect(find.byType(PostCard), findsWidgets);
     });
 
-    testWidgets('displays post count chip when posts are loaded',
-        (tester) async {
-      when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-          .thenAnswer((_) async => _posts(4));
+    testWidgets('displays post count chip when posts are loaded', (
+      tester,
+    ) async {
+      when(
+        () => mockRepo.fetchPosts(page: any(named: 'page')),
+      ).thenAnswer((_) async => _posts(4));
 
       await tester.pumpWidget(_buildScreen(mockRepo));
       await tester.pumpAndSettle();
@@ -153,10 +163,12 @@ void main() {
       expect(find.textContaining('4'), findsWidgets);
     });
 
-    testWidgets('tapping a PostCard navigates to detail screen',
-        (tester) async {
-      when(() => mockRepo.fetchPosts(page: any(named: 'page')))
-          .thenAnswer((_) async => _posts(2));
+    testWidgets('tapping a PostCard navigates to detail screen', (
+      tester,
+    ) async {
+      when(
+        () => mockRepo.fetchPosts(page: any(named: 'page')),
+      ).thenAnswer((_) async => _posts(2));
 
       await tester.pumpWidget(_buildScreen(mockRepo));
       await tester.pumpAndSettle();

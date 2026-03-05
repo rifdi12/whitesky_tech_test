@@ -3,7 +3,12 @@ import 'package:whitesky_aviation_tech_test/models/post.dart';
 
 void main() {
   group('Post model', () {
-    const tPost = Post(id: 1, userId: 2, title: 'Test Title', body: 'Test body');
+    const tPost = Post(
+      id: 1,
+      userId: 2,
+      title: 'Test Title',
+      body: 'Test body',
+    );
 
     const tJson = <String, dynamic>{
       'id': 1,
@@ -44,10 +49,7 @@ void main() {
 
     group('toString', () {
       test('returns a readable string representation', () {
-        expect(
-          tPost.toString(),
-          'Post(id: 1, userId: 2, title: Test Title)',
-        );
+        expect(tPost.toString(), 'Post(id: 1, userId: 2, title: Test Title)');
       });
     });
 
