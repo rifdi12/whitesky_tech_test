@@ -1,30 +1,39 @@
-// This is a basic Flutter widget test.
-//
-// To perform an interaction with a widget in your test, use the WidgetTester
-// utility in the flutter_test package. For example, you can send tap and scroll
-// gestures. You can also use WidgetTester to find child widgets in the widget
-// tree, read text, and verify that the values of widget properties are correct.
+// Smoke test — verifies the app can boot and render PostListScreen.
+// Individual unit, bloc, and widget tests live in test/unit/, test/bloc/,
+// and test/widget/ respectively.
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mocktail/mocktail.dart';
+import 'package:whitesky_aviation_tech_test/blocs/post_bloc.dart';
+import 'package:whitesky_aviation_tech_test/models/post.dart';
+import 'package:whitesky_aviation_tech_test/repositories/post_repository.dart';
+import 'package:whitesky_aviation_tech_test/screens/post_list_screen.dart';
 
-import 'package:whitesky_aviation_tech_test/main.dart';
+class MockPostRepository extends Mock implements PostRepository {}
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('App boots and renders PostListScreen', (tester) async {
+    final repo = MockPostRepository();
+    when(() => repo.fetchPosts(page: any(named: 'page'))).thenAnswer(
+      (_) async => List.generate(
+        3,
+        (i) => Post(id: i + 1, userId: 1, title: 'Title ${i + 1}', body: 'B'),
+      ),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    await tester.pumpWidget(
+      MaterialApp(
+        home: BlocProvider(
+          create: (_) => PostBloc(repository: repo)..add(const LoadPosts()),
+          child: const PostListScreen(),
+        ),
+      ),
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.byType(PostListScreen), findsOneWidget);
   });
 }

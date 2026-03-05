@@ -21,6 +21,19 @@ class Post {
   }
 
   @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Post &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          userId == other.userId &&
+          title == other.title &&
+          body == other.body;
+
+  @override
+  int get hashCode => Object.hash(id, userId, title, body);
+
+  @override
   String toString() {
     return 'Post(id: $id, userId: $userId, title: $title)';
   }
