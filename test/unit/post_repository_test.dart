@@ -46,13 +46,14 @@ void main() {
 
     test('sends correct _start and _limit query params for page 1', () async {
       when(
-        () => mockClient.get(any()),
+        () => mockClient.get(any(), headers: any(named: 'headers')),
       ).thenAnswer((_) async => http.Response(_postJson(), 200));
 
       await repository.fetchPosts(page: 1);
 
-      final captured =
-          verify(() => mockClient.get(captureAny())).captured.single as Uri;
+      final captured = verify(
+        () => mockClient.get(captureAny(), headers: any(named: 'headers')),
+      ).captured.single as Uri;
 
       expect(captured.queryParameters['_start'], '0');
       expect(captured.queryParameters['_limit'], '${PostRepository.pageSize}');
@@ -60,13 +61,14 @@ void main() {
 
     test('sends correct _start for page 2', () async {
       when(
-        () => mockClient.get(any()),
+        () => mockClient.get(any(), headers: any(named: 'headers')),
       ).thenAnswer((_) async => http.Response(_postJson(), 200));
 
       await repository.fetchPosts(page: 2);
 
-      final captured =
-          verify(() => mockClient.get(captureAny())).captured.single as Uri;
+      final captured = verify(
+        () => mockClient.get(captureAny(), headers: any(named: 'headers')),
+      ).captured.single as Uri;
 
       expect(captured.queryParameters['_start'], '${PostRepository.pageSize}');
     });
@@ -75,7 +77,7 @@ void main() {
 
     test('returns a list of Posts on HTTP 200', () async {
       when(
-        () => mockClient.get(any()),
+        () => mockClient.get(any(), headers: any(named: 'headers')),
       ).thenAnswer((_) async => http.Response(_postJson(), 200));
 
       final posts = await repository.fetchPosts(page: 1);
@@ -87,7 +89,7 @@ void main() {
 
     test('returns multiple posts parsed correctly', () async {
       when(
-        () => mockClient.get(any()),
+        () => mockClient.get(any(), headers: any(named: 'headers')),
       ).thenAnswer((_) async => http.Response(_multiplePostsJson(5), 200));
 
       final posts = await repository.fetchPosts(page: 1);
@@ -100,7 +102,7 @@ void main() {
 
     test('returns empty list when server returns empty array', () async {
       when(
-        () => mockClient.get(any()),
+        () => mockClient.get(any(), headers: any(named: 'headers')),
       ).thenAnswer((_) async => http.Response('[]', 200));
 
       final posts = await repository.fetchPosts(page: 1);
@@ -112,7 +114,7 @@ void main() {
 
     test('throws PostRepositoryException on HTTP 404', () async {
       when(
-        () => mockClient.get(any()),
+        () => mockClient.get(any(), headers: any(named: 'headers')),
       ).thenAnswer((_) async => http.Response('Not Found', 404));
 
       expect(
@@ -129,7 +131,7 @@ void main() {
 
     test('throws PostRepositoryException on HTTP 500', () async {
       when(
-        () => mockClient.get(any()),
+        () => mockClient.get(any(), headers: any(named: 'headers')),
       ).thenAnswer((_) async => http.Response('Internal Server Error', 500));
 
       expect(
@@ -144,7 +146,7 @@ void main() {
       'throws PostRepositoryException on SocketException (no internet)',
       () async {
         when(
-          () => mockClient.get(any()),
+          () => mockClient.get(any(), headers: any(named: 'headers')),
         ).thenThrow(const SocketException('No internet'));
 
         expect(
@@ -164,7 +166,7 @@ void main() {
       'throws PostRepositoryException on FormatException (bad JSON)',
       () async {
         when(
-          () => mockClient.get(any()),
+          () => mockClient.get(any(), headers: any(named: 'headers')),
         ).thenAnswer((_) async => http.Response('not-valid-json', 200));
 
         expect(
@@ -181,7 +183,9 @@ void main() {
     );
 
     test('throws PostRepositoryException on unexpected error', () async {
-      when(() => mockClient.get(any())).thenThrow(Exception('Unknown'));
+      when(
+        () => mockClient.get(any(), headers: any(named: 'headers')),
+      ).thenThrow(Exception('Unknown'));
 
       expect(
         () => repository.fetchPosts(page: 1),

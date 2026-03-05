@@ -8,8 +8,15 @@ import '../models/post.dart';
 /// Handles all network communication with the JSONPlaceholder API.
 /// Supports paginated fetching via [pageSize] items per request.
 class PostRepository {
-  static const String _baseUrl = 'https://jsonplaceholder.typicode.com';
+  static const String _host = 'jsonplaceholder.typicode.com';
   static const int pageSize = 10;
+
+  // Standard browser-like headers to avoid Cloudflare bot-detection (403).
+  static const Map<String, String> _headers = {
+    'Accept': 'application/json',
+    'User-Agent':
+        'Mozilla/5.0 (compatible; FlutterApp/1.0; +https://flutter.dev)',
+  };
 
   final http.Client _client;
 
@@ -22,12 +29,14 @@ class PostRepository {
   /// Throws a [PostRepositoryException] on network or parsing failure.
   Future<List<Post>> fetchPosts({required int page}) async {
     final start = (page - 1) * pageSize;
-    final uri = Uri.parse(
-      '$_baseUrl/posts',
-    ).replace(queryParameters: {'_start': '$start', '_limit': '$pageSize'});
+    // Uri.https() guarantees correct encoding without percent-encoding underscores.
+    final uri = Uri.https(_host, '/posts', {
+      '_start': '$start',
+      '_limit': '$pageSize',
+    });
 
     try {
-      final response = await _client.get(uri);
+      final response = await _client.get(uri, headers: _headers);
 
       if (response.statusCode == 200) {
         final List<dynamic> jsonList = jsonDecode(response.body) as List;
